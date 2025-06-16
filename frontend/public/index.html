@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>WEB</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+      .form-tab { display: none; } 
+      .form-tab.active { display: block;}
+      .login-wrap {  width: 120%; height: 85%; background: rgba(78, 102, 136, 1); padding: 40px; border-radius: 40px; max-height: 500px;}
+      .form-control { width: 100%; background: rgba(147, 147, 147, 0.7); color: #333; border-radius: 20px; }
+      .btn-primary  { width: 50%; }
+      .btn-success  { width: 30%; height: 80%; background-color: #28a745; border-color: #28a745; }
+      .dropdown-toggle { background-color: #007bff; color: #fff; border-radius: 20px; width: 150px; }
+      .checkbox-wrap { color: #fff; }
+      .checkbox-wrap input { position: relative; top: 2px; }
+      .checkmark { background-color: #fff; border-radius: 50%; transition: background-color 0.3s ease;}
+      .transfer-column {
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center; 
+      min-width: 500px;
+      min-height: 400px;
+      max-height: 500px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+    }
+
+	</style>
+  </head>
+  <body class="img js-fullheight" style="background-image: url(images/bg.jpg); background-size: cover; background-position: center; background-attachment: fixed;">
+	<section class="ftco-section ftco-degree-bg" style="margin-right: 55px">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-md-12 text-center mb-5">
+            <h2 class="heading-section" id="form-title" style=" white-space: nowrap; font-family: 'Arial'; font-size: 80px; font-weight: 1000; margin-left: 70px; margin-bottom: -20px;">SIGN IN</h2>
+          </div>
+        </div>
+        <div class="row justify-content-center">
+          <div class="col-md-6 col-lg-4">
+            <div class="login-wrap p-0" style="margin-bottom: 90px;">
+
+              <!-- Login Tab -->
+              <div id="login-tab" class="form-tab active">
+                <h3 class="mb-4 text-center" style="font-family: 'Arial';">Have an account?</h3>
+                <form action="#" class="signin-form">
+                  <div class="d-flex flex-column align-items-center">
+                    <div class="form-group w-75">
+                      <input type="text" class="form-control" placeholder="Username" required>
+                    </div>
+                    <div class="form-group w-75">
+                      <input type="password" class="form-control" placeholder="Password" required>
+                      <span class="toggle-password" onclick="togglePassword(event)" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; color:#ffffff;">
+                        <i class="fa fa-eye" id="toggle-icon"></i>
+                      </span>
+                    </div>
+                    </div>
+                  <div class="text-center">
+                    <button type="submit" id="show-function" class="form-control btn btn-primary submit px-3">Sign In</button>
+                  </div>
+                  <div class="form-group d-md-flex" style="margin-top: 20px;">
+                    <div class="w-50">
+                      <label class="checkbox-wrap checkbox-primary text-md-center">Remember Me
+                        <input type="checkbox" checked>
+                        <span class="checkmark" style="margin: 35px; margin-top: 1px;"></span>
+                      </label>
+                    </div>
+                    <div class="w-50 text-md-center" id="forgot-password-tab">
+                      <a href="#" style="color: #b8ebff;"><u>Forgot Password</u></a>
+                    </div>
+                  </div>
+                </form>
+                <p class="w-100 text-center" style="margin-top: -10px;">&mdash; Or don't have an account? &mdash;</p>
+                <div class="text-center">
+                  <button type="submit" id="show-register" class="form-control btn btn-success submit px-3">REGISTER</button>
+                </div>
+              </div>
+
+              <!-- Register Tab -->
+              <div id="register-tab" class="form-tab">
+                <h3 class="mb-4 text-center" style="font-family: 'Arial';">Create an account</h3>
+                <form action="#" class="signin-form">
+                  <div class="d-flex flex-column align-items-center">
+                    <div class="form-group w-75">
+                      <input type="text" class="form-control" placeholder="Username" required>
+                    </div>
+                    <div class="form-group w-75">
+                      <input type="text" class="form-control" placeholder="Email" required>
+                    </div>
+                    <div class="form-group w-75">
+                      <input type="password" class="form-control" placeholder="Password" required>
+                      <span class="toggle-password" onclick="togglePassword(event)" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; color:#ffffff;">
+                        <i class="fa fa-eye" id="toggle-icon"></i>
+                      </span>
+                    </div>
+                    </div>
+                  <div class="text-center">
+                    <button type="submit" class="form-control btn btn-primary submit px-3">REGISTER</button>
+                  </div>
+                </form>
+                <p class="w-100 text-center" style="margin-top: 20px;">&mdash; Already have an account? &mdash;</p>
+                <div class="text-center">
+                  <button type="submit" id="show-login" class="form-control btn btn-success submit px-3">SIGN IN</button>
+                </div>
+              </div>
+
+              <!-- Forgot Password Tab -->
+              <div id="forgot-password-panel" class="form-tab">
+                <h3 class="mb-4 text-center"  style="font-family: 'Arial';">Forgot Password</h3>
+                <form action="#" class="signin-form">
+                  <div class="d-flex flex-column align-items-center">
+                    <div class="form-group w-75">
+                      <input type="text" class="form-control" placeholder="Username" required>
+                    </div>
+                    <div class="form-group w-75">
+                      <input type="text" class="form-control" placeholder="Email" required>
+                    </div>
+                    <div class="form-group w-75">
+                      <input type="password" class="form-control" placeholder="Password" required>
+                      <span class="toggle-password" onclick="togglePassword(event)" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; color:#ffffff;">
+                        <i class="fa fa-eye" id="toggle-icon"></i>
+                      </span>
+                    </div>
+                    </div>
+                  <div class="text-center">
+                    <button type="submit" class="form-control btn btn-primary submit px-3">Change Password</button>
+                  </div>
+                </form>
+                <div class="text-center">
+                  <button type="submit" id="show-login-forgot" class="form-control btn btn-success submit px-3" style="margin-top: 15px;">SIGN IN</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row justify-content-center">
+          <div class="col-md-6 col-lg-4" style="margin-bottom: 90px;">
+              
+            <!-- Function Tab -->
+              <div id="function-tab" class="form-tab">
+                <div class="container" style="display: flex; gap: 50px; justify-content: center; align-items: center; margin-left: 30px; margin-top: -100px;">
+
+                  <!-- Station Info -->
+                  <div class="transfer-column" style="background-color: #4E6688;">
+                    <h4 style="font-size: 34px; color: #ffffff; font-family: 'Arial';">Station Info</h4>
+                    <div id="station-list" style="text-align: left; background: #eaffea; padding: 10px; border-radius: 10px; overflow-y: auto; width: 100%; height: 100%; max-height: 300px;">
+                      <!-- Station info will be rendered here -->
+                    </div>
+                  </div>
+
+                  <!-- Transfer Documents -->
+                  <div class="transfer-column" style="background-color: #4E6688;">
+                    <h4 style="font-size: 34px; color: #ffffff; font-family: 'Arial';">Select Room</h4>
+                    <form>
+                      <div class="form-group" style="margin-top: 5px; margin-left: 63px; width: 70%; color: #ffffff;">
+                        <label>Source Room</label>
+                        <select id="source-room" class="form-control" required></select>
+                      </div>
+                      <div class="form-group" style="margin-top: 5px; margin-left: 63px; width: 70%; color: #ffffff;">
+                        <label>Delivery Room</label>
+                        <select id="delivery-room" class="form-control" required></select>
+                      </div>
+                      <button class="btn btn-primary" style="margin-top: 20px; width: 50%;" type="button" onclick="addTransferLog()">Transfer</button>
+                    </form>
+                  </div>
+
+                  <!-- Transfer Log -->
+                  <div class="transfer-column" style="background-color: #4E6688;">
+                    <h4 style="font-size: 34px; color: #ffffff; font-family: 'Arial';">Transfer Log</h4>
+                    <div id="transfer-log-output" style="text-align: left; background: #eaffea; padding: 10px; border-radius: 10px; overflow-y: auto; width: 100%; height: 100%; max-height: 300px;">
+                      <!-- Logs will appear here -->
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/popper.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script>
+      const loginTab = document.getElementById('login-tab');
+      const registerTab = document.getElementById('register-tab');
+      const forgotPasswordTab = document.getElementById('forgot-password-panel');
+      const functionTab = document.getElementById('function-tab');
+
+      const formTitle = document.getElementById('form-title');
+
+      document.getElementById('show-register').addEventListener('click', function (e) {
+        e.preventDefault();
+        loginTab.classList.remove('active');
+        registerTab.classList.add('active');
+        formTitle.innerText = 'REGISTER';
+      });
+
+      document.getElementById('show-login').addEventListener('click', function (e) {
+        e.preventDefault();
+        registerTab.classList.remove('active');
+        loginTab.classList.add('active');
+        formTitle.innerText = 'SIGN IN';
+      });
+
+      document.querySelector('#forgot-password-tab a').addEventListener('click', function (e) {
+        e.preventDefault();
+        loginTab.classList.remove('active');
+        forgotPasswordTab.classList.add('active');
+        formTitle.innerText = 'FORGOT PASSWORD';
+        formTitle.style.marginLeft = '180px';
+      });
+
+      document.getElementById('show-login-forgot').addEventListener('click', function (e) {
+        e.preventDefault();
+        forgotPasswordTab.classList.remove('active');
+        loginTab.classList.add('active');
+        formTitle.innerText = 'SIGN IN';
+        formTitle.style.marginLeft = '70px';
+      });
+
+      document.getElementById('show-function').addEventListener('click', function (e) {
+        e.preventDefault();
+        loginTab.classList.remove('active');
+        functionTab.classList.add('active');
+        formTitle.innerText = 'TRANSFER DOCUMENT';
+        formTitle.style.fontSize = '50px';
+      });
+
+    function togglePassword(event) {
+      const toggleIcon = event.target;
+      const passwordInput = toggleIcon.closest('.form-group').querySelector('input');
+
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleIcon.classList.remove('fa-eye');
+        toggleIcon.classList.add('fa-eye-slash');
+      } else {
+        passwordInput.type = 'password';
+        toggleIcon.classList.remove('fa-eye-slash');
+        toggleIcon.classList.add('fa-eye');
+      }
+    }
+
+    const stationData = [
+      { id: 'S01', name: 'Station Alpha', location: 'Zone A', robot_amount: 3 },
+      { id: 'S02', name: 'Station Beta', location: 'Zone B', robot_amount: 2 },
+      { id: 'S03', name: 'Station Gamma', location: 'Zone C', robot_amount: 5 }
+    ];
+
+    const rooms = ['Room A1', 'Room B2', 'Room C3', 'Room D4'];
+
+    function renderStations() {
+      const stationList = document.getElementById('station-list');
+      stationList.innerHTML = '';
+      stationData.forEach(station => {
+        const info = document.createElement('div');
+        info.style.marginBottom = '10px';
+        info.innerHTML = `<strong>${station.name}</strong><br>Location: ${station.location}<br>Robot Amount: ${station.robot_amount}`;
+        stationList.appendChild(info);
+      });
+    }
+
+    function renderRoomDropdowns() {
+      const sourceSelect = document.getElementById('source-room');
+      const destSelect = document.getElementById('delivery-room');
+
+      rooms.forEach(room => {
+        const option1 = document.createElement('option');
+        option1.value = option1.textContent = room;
+        option1.style.color = '#000000'; // Set text color for better visibility
+        option1.style.backgroundColor = '#ffffff'; // Set background color for better visibility
+        sourceSelect.appendChild(option1);
+
+        const option2 = document.createElement('option');
+        option2.value = option2.textContent = room;
+        option2.style.color = '#000000'; // Set text color for better visibility
+        option2.style.backgroundColor = '#ffffff'; // Set background color for better visibility
+        destSelect.appendChild(option2);
+      });
+    }
+
+    function addTransferLog() {
+      const source = document.getElementById('source-room').value;
+      const dest = document.getElementById('delivery-room').value;
+      const logBox = document.getElementById('transfer-log-output');
+
+      if (source && dest) {
+        const time = new Date().toLocaleString();
+        const log = document.createElement('div');
+        log.textContent = `${time}: Transferred from ${source} to ${dest}`;
+        logBox.appendChild(log);
+      }
+    }
+
+    // Khi load form chức năng, render dữ liệu
+    document.getElementById('show-function').addEventListener('click', function (e) {
+      e.preventDefault();
+      loginTab.classList.remove('active');
+      functionTab.classList.add('active');
+      formTitle.innerText = 'TRANSFER DOCUMENT';
+      formTitle.style.fontSize = '50px';
+
+      // Render dữ liệu
+      renderStations();
+      renderRoomDropdowns();
+    });
+
+    </script>
+  </body>
+</html>
