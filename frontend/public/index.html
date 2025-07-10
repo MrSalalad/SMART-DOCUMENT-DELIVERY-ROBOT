@@ -190,29 +190,29 @@
     <script src="js/jquery.min.js"></script>
     <script src="js/popper.js"></script>
     <script src="js/bootstrap.min.js"></script>
-    <script>
+   <script>
       const loginTab = document.getElementById('login-tab');
       const registerTab = document.getElementById('register-tab');
       const forgotPasswordTab = document.getElementById('forgot-password-panel');
       const functionTab = document.getElementById('function-tab');
-
       const formTitle = document.getElementById('form-title');
 
-      document.getElementById('show-register').addEventListener('click', function (e) {
+      // ==== UI Chuyển Tab ====
+      document.getElementById('show-register').addEventListener('click', e => {
         e.preventDefault();
         loginTab.classList.remove('active');
         registerTab.classList.add('active');
         formTitle.innerText = 'REGISTER';
       });
 
-      document.getElementById('show-login').addEventListener('click', function (e) {
+      document.getElementById('show-login').addEventListener('click', e => {
         e.preventDefault();
         registerTab.classList.remove('active');
         loginTab.classList.add('active');
         formTitle.innerText = 'SIGN IN';
       });
 
-      document.querySelector('#forgot-password-tab a').addEventListener('click', function (e) {
+      document.querySelector('#forgot-password-tab a').addEventListener('click', e => {
         e.preventDefault();
         loginTab.classList.remove('active');
         forgotPasswordTab.classList.add('active');
@@ -220,7 +220,7 @@
         formTitle.style.marginLeft = '180px';
       });
 
-      document.getElementById('show-login-forgot').addEventListener('click', function (e) {
+      document.getElementById('show-login-forgot').addEventListener('click', e => {
         e.preventDefault();
         forgotPasswordTab.classList.remove('active');
         loginTab.classList.add('active');
@@ -228,93 +228,160 @@
         formTitle.style.marginLeft = '70px';
       });
 
-      document.getElementById('show-function').addEventListener('click', function (e) {
+      // ==== Toggle Password ====
+      function togglePassword(event) {
+        const toggleIcon = event.target;
+        const passwordInput = toggleIcon.closest('.form-group').querySelector('input');
+        passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+        toggleIcon.classList.toggle('fa-eye');
+        toggleIcon.classList.toggle('fa-eye-slash');
+      }
+
+      // ==== Đăng nhập ====
+      document.getElementById('show-function').addEventListener('click', async function (e) {
         e.preventDefault();
-        loginTab.classList.remove('active');
-        functionTab.classList.add('active');
-        formTitle.innerText = 'TRANSFER DOCUMENT';
-        formTitle.style.fontSize = '50px';
+        const username = loginTab.querySelector('input[placeholder="Username"]').value;
+        const password = loginTab.querySelector('input[placeholder="Password"]').value;
+
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        if (res.ok) {
+          loginTab.classList.remove('active');
+          functionTab.classList.add('active');
+          formTitle.innerText = 'TRANSFER DOCUMENT';
+          formTitle.style.fontSize = '50px';
+          renderStations();
+          renderRoomDropdowns();
+          loadLogs();
+        } else {
+          const data = await res.json();
+          alert(data.message || 'Login failed');
+        }
       });
 
-    function togglePassword(event) {
-      const toggleIcon = event.target;
-      const passwordInput = toggleIcon.closest('.form-group').querySelector('input');
+      // ==== Đăng ký ====
+      registerTab.querySelector('form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const username = registerTab.querySelector('input[placeholder="Username"]').value;
+        const email = registerTab.querySelector('input[placeholder="Email"]').value;
+        const password = registerTab.querySelector('input[placeholder="Password"]').value;
 
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        toggleIcon.classList.remove('fa-eye');
-        toggleIcon.classList.add('fa-eye-slash');
-      } else {
-        passwordInput.type = 'password';
-        toggleIcon.classList.remove('fa-eye-slash');
-        toggleIcon.classList.add('fa-eye');
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          alert('Đăng ký thành công!');
+          registerTab.classList.remove('active');
+          loginTab.classList.add('active');
+          formTitle.innerText = 'SIGN IN';
+        } else {
+          alert(data.message || 'Đăng ký thất bại!');
+        }
+      });
+
+      // ==== Quên mật khẩu ====
+      forgotPasswordTab.querySelector('form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const username = forgotPasswordTab.querySelector('input[placeholder="Username"]').value;
+        const email = forgotPasswordTab.querySelector('input[placeholder="Email"]').value;
+        const password = forgotPasswordTab.querySelector('input[placeholder="Password"]').value;
+
+        const res = await fetch('/api/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          alert('Đổi mật khẩu thành công!');
+          forgotPasswordTab.classList.remove('active');
+          loginTab.classList.add('active');
+          formTitle.innerText = 'SIGN IN';
+        } else {
+          alert(data.message || 'Không tìm thấy người dùng!');
+        }
+      });
+
+      // ==== Station ====
+      async function renderStations() {
+        const stationList = document.getElementById('station-list');
+        stationList.innerHTML = '';
+        const res = await fetch('/api/stations');
+        const stations = await res.json();
+        stations.forEach(station => {
+          const info = document.createElement('div');
+          info.style.marginBottom = '10px';
+          info.innerHTML = `<strong>${station.name}</strong><br>Capacity: ${station.max_capacity}<br>Current Occupation: ${station.current_occupation}`;
+          stationList.appendChild(info);
+        });
       }
-    }
 
-    const stationData = [
-      { id: 'S01', name: 'Station Alpha', location: 'Zone A', robot_amount: 3 },
-      { id: 'S02', name: 'Station Beta', location: 'Zone B', robot_amount: 2 },
-      { id: 'S03', name: 'Station Gamma', location: 'Zone C', robot_amount: 5 }
-    ];
+      // ==== Room ====
+      async function renderRoomDropdowns() {
+        const sourceSelect = document.getElementById('source-room');
+        const destSelect = document.getElementById('delivery-room');
+        sourceSelect.innerHTML = '';
+        destSelect.innerHTML = '';
 
-    const rooms = ['Room A1', 'Room B2', 'Room C3', 'Room D4'];
+        try {
+          const res = await fetch('/api/rooms');
+          if (!res.ok) throw new Error('Failed to fetch rooms');
+          const rooms = await res.json();
 
-    function renderStations() {
-      const stationList = document.getElementById('station-list');
-      stationList.innerHTML = '';
-      stationData.forEach(station => {
-        const info = document.createElement('div');
-        info.style.marginBottom = '10px';
-        info.innerHTML = `<strong>${station.name}</strong><br>Location: ${station.location}<br>Robot Amount: ${station.robot_amount}`;
-        stationList.appendChild(info);
-      });
-    }
+          rooms.forEach(room => {
+            const option1 = document.createElement('option');
+            option1.value = option1.textContent = room;
+            option1.style.color = '#000';
+            option1.style.backgroundColor = '#fff';
+            sourceSelect.appendChild(option1);
 
-    function renderRoomDropdowns() {
-      const sourceSelect = document.getElementById('source-room');
-      const destSelect = document.getElementById('delivery-room');
-
-      rooms.forEach(room => {
-        const option1 = document.createElement('option');
-        option1.value = option1.textContent = room;
-        option1.style.color = '#000000'; // Set text color for better visibility
-        option1.style.backgroundColor = '#ffffff'; // Set background color for better visibility
-        sourceSelect.appendChild(option1);
-
-        const option2 = document.createElement('option');
-        option2.value = option2.textContent = room;
-        option2.style.color = '#000000'; // Set text color for better visibility
-        option2.style.backgroundColor = '#ffffff'; // Set background color for better visibility
-        destSelect.appendChild(option2);
-      });
-    }
-
-    function addTransferLog() {
-      const source = document.getElementById('source-room').value;
-      const dest = document.getElementById('delivery-room').value;
-      const logBox = document.getElementById('transfer-log-output');
-
-      if (source && dest) {
-        const time = new Date().toLocaleString();
-        const log = document.createElement('div');
-        log.textContent = `${time}: Transferred from ${source} to ${dest}`;
-        logBox.appendChild(log);
+            const option2 = document.createElement('option');
+            option2.value = option2.textContent = room;
+            option2.style.color = '#000';
+            option2.style.backgroundColor = '#fff';
+            destSelect.appendChild(option2);
+          });
+        } catch (err) {
+          console.error('Lỗi khi lấy danh sách phòng:', err.message);
+        }
       }
-    }
 
-    // Khi load form chức năng, render dữ liệu
-    document.getElementById('show-function').addEventListener('click', function (e) {
-      e.preventDefault();
-      loginTab.classList.remove('active');
-      functionTab.classList.add('active');
-      formTitle.innerText = 'TRANSFER DOCUMENT';
-      formTitle.style.fontSize = '50px';
+      // ==== Transfer Log ====
+      async function addTransferLog() {
+        const source = document.getElementById('source-room').value;
+        const dest = document.getElementById('delivery-room').value;
+        if (!source || !dest) return alert('Chọn cả 2 phòng');
 
-      // Render dữ liệu
-      renderStations();
-      renderRoomDropdowns();
-    });
+        await fetch('/api/transfer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ source, destination: dest })
+        });
 
-    </script>
+        loadLogs();
+      }
+
+      async function loadLogs() {
+        const logBox = document.getElementById('transfer-log-output');
+        logBox.innerHTML = '';
+        const res = await fetch('/api/logs');
+        const logs = await res.json();
+        logs.forEach(log => {
+          const div = document.createElement('div');
+          div.textContent = `${new Date(log.timestamp).toLocaleString()}: ${log.source} → ${log.destination}`;
+          logBox.appendChild(div);
+        });
+      }
+      </script>
+
   </body>
 </html>
