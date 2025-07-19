@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { publishTransfer } = require('../mqttClient');
 const { User, Station, Room, TransferLog } = require('../Model/models');
 
 // ===== LOGIN =====
@@ -52,6 +53,7 @@ router.get('/rooms', async (req, res) => {
 router.post('/transfer', async (req, res) => {
   const { source, destination } = req.body;
   const log = new TransferLog({ source, destination });
+  publishTransfer(source, destination);
   await log.save();
   res.json({ message: 'Transfer logged', log });
 });
