@@ -183,6 +183,21 @@
               
           </div>
         </div>
+        
+        <div id="toast" style="
+          position: fixed;
+          bottom: 30px;
+          right: 30px;
+          background-color: #333;
+          color: #fff;
+          padding: 14px 20px;
+          border-radius: 8px;
+          font-size: 16px;
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.5s ease;
+          z-index: 9999;
+        "></div>
 
       </div>
     </section>
@@ -190,6 +205,7 @@
     <script src="js/jquery.min.js"></script>
     <script src="js/popper.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
    <script>
       const loginTab = document.getElementById('login-tab');
       const registerTab = document.getElementById('register-tab');
@@ -311,6 +327,19 @@
         }
       });
 
+      function showToast(message) {
+        const toast = document.getElementById('toast');
+        toast.innerText = message;
+        toast.style.opacity = 1;
+        toast.style.pointerEvents = 'auto';
+
+        // Tự ẩn sau 3 giây
+        setTimeout(() => {
+          toast.style.opacity = 0;
+          toast.style.pointerEvents = 'none';
+        }, 3000);
+      }
+
       // ==== Station ====
       async function renderStations() {
         const stationList = document.getElementById('station-list');
@@ -381,6 +410,24 @@
           logBox.appendChild(div);
         });
       }
+
+      async function fetchArrivalStatus() {
+        try {
+          const res = await fetch('/api/location'); // hoặc '/logs'
+          const text = await res.text();        // ví dụ: ✅ Đã đến vị trí số 4
+          showToast(text);                      // ✅ Gọi toast thay vì alert
+        } catch (err) {
+          showToast('❌ Không thể nhận dữ liệu từ robot!');
+        }
+      }
+      </script>
+      
+      <script>
+        const socket = io();
+
+        socket.on('location-update', (location) => {
+          showToast(`✅ Đã đến vị trí số ${location}`);
+        });
       </script>
 
   </body>

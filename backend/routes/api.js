@@ -1,7 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { publishTransfer } = require('../mqttClient');
+const { publishTransfer, receiveLocation, initLocationSocket } = require('../mqttClient');
+//const { io } = require('../app');
 const { User, Station, Room, TransferLog } = require('../Model/models');
+
+// initLocationSocket(io);
 
 // ===== LOGIN =====
 router.post('/login', async (req, res) => {
@@ -64,4 +67,14 @@ router.get('/logs', async (req, res) => {
   res.json(logs);
 });
 
+// ===== GET CURRENT LOCATION =====
+router.get('/location', async (req, res) => {
+  try {
+    const data = await receiveLocation(); // { currentLocation: ... }
+    res.send(`✅ Đã đến vị trí số ${data.currentLocation}`);
+  } catch (err) {
+    console.error('MQTT error:', err);
+    res.status(500).send('❌ Không thể nhận dữ liệu từ MQTT');
+  }
+});
 module.exports = router;
