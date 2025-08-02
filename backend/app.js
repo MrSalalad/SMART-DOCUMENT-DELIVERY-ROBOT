@@ -6,10 +6,8 @@ const path = require('path');
 const http = require('http');
 const connectDB = require('./db');
 const { Server } = require('socket.io');
-const { User, Station, Room, TransferLog } = require('./Model/models');
 const apiRoutes = require('./routes/api');
 const { initLocationSocket } = require('./mqttClient');
-//const { receiveLocation } = require('../mqtt'); // ✅ Import receiveLocation
 
 connectDB(); // ✅ Kết nối MongoDB
 
@@ -35,14 +33,15 @@ app.get('/', (req, res) => {
 app.use('/api', apiRoutes);
 
 // ✅ API thông báo vị trí
-app.get('/api/location', async (req, res) => {
-  try {
-    const data = await receiveLocation(); // ví dụ: { currentLocation: 4 }
-    res.send(`✅ Đã đến vị trí số ${data.currentLocation}`);
-  } catch (err) {
-    res.status(500).send('❌ Không thể nhận dữ liệu từ robot');
-  }
-});
+// app.get('/api/location', async (req, res) => {
+//   try {
+//     if()
+//     const data = await receiveLocation(); // ví dụ: { currentLocation: 4 }
+//     res.send(`✅ Đã đến vị trí số ${data.currentLocation}`);
+//   } catch (err) {
+//     res.status(500).send('❌ Không thể nhận dữ liệu từ robot');
+//   }
+// });
 
 // Route chính phục vụ index.html
 app.use((req, res) => {

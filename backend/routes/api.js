@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { publishTransfer, receiveLocation, initLocationSocket } = require('../mqttClient');
-//const { io } = require('../app');
+const { io } = require('../app');
 const { User, Station, Room, TransferLog } = require('../Model/models');
 
 // initLocationSocket(io);
@@ -11,6 +11,8 @@ router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   const user = await User.findOne({ username, password });
   if (user) {
+    user.isLoggedIn = true; // ✅ Ghi nhận đã login
+    await user.save();
     res.json({ message: 'Login success' });
   } else {
     res.status(401).json({ message: 'Invalid username or password' });
@@ -58,6 +60,7 @@ router.post('/transfer', async (req, res) => {
   const log = new TransferLog({ source, destination });
   publishTransfer(source, destination);
   await log.save();
+  io.emit('new-log', log);
   res.json({ message: 'Transfer logged', log });
 });
 
@@ -77,4 +80,4 @@ router.get('/location', async (req, res) => {
     res.status(500).send('❌ Không thể nhận dữ liệu từ MQTT');
   }
 });
-module.exports = router;
+module.exports =  router;

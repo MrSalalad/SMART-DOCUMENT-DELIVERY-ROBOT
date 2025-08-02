@@ -425,9 +425,21 @@
       <script>
         const socket = io();
 
-        socket.on('location-update', (location) => {
-          showToast(`✅ Đã đến vị trí số ${location}`);
+        // socket.on('location-update', (location) => {
+        //   showToast(`✅ Đã đến vị trí số ${location}`);
+        // });
+        socket.on('new-log', (log) => {
+          const logBox = document.getElementById('transfer-log-output');
+          const div = document.createElement('div');
+          const time = new Date(log.timestamp).toLocaleString();
+          div.textContent = `${time}: ${log.source} → ${log.destination}`;
+          logBox.prepend(div); // Add new logs at the top
         });
+
+        // Load initial logs
+        window.onload = () => {
+          loadLogs();
+        };
       </script>
 
   </body>
