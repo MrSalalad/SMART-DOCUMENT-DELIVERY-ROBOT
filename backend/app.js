@@ -3,16 +3,21 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const http = require('http');
 const connectDB = require('./db');
+const { Server } = require('socket.io');
+const apiRoutes = require('./routes/api');
+const { initLocationSocket } = require('./mqttClient');
 
-const { User, Station, Room, TransferLog } = require('./Model/models');
-
-const apiRoutes = require('./routes/api'); // ✅ Import route
 connectDB(); // ✅ Kết nối MongoDB
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+const server = http.createServer(app);
+const io = new Server(server); 
+
+initLocationSocket(io)
 app.use(cors());
 app.use(express.json());
 
@@ -24,9 +29,19 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
-
 // ✅ Mount API routes
 app.use('/api', apiRoutes);
+
+// ✅ API thông báo vị trí
+// app.get('/api/location', async (req, res) => {
+//   try {
+//     if()
+//     const data = await receiveLocation(); // ví dụ: { currentLocation: 4 }
+//     res.send(`✅ Đã đến vị trí số ${data.currentLocation}`);
+//   } catch (err) {
+//     res.status(500).send('❌ Không thể nhận dữ liệu từ robot');
+//   }
+// });
 
 // Route chính phục vụ index.html
 app.use((req, res) => {
@@ -40,7 +55,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`🌐 Server is running at http://localhost:${port}`);
 });

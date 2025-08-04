@@ -4,6 +4,7 @@ const userSchema = new mongoose.Schema({
   username: String,
   email: String,
   password: String,
+  isLoggedIn: { type: Boolean, default: false }
 });
 
 const stationSchema = new mongoose.Schema({
