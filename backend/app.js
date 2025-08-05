@@ -17,6 +17,9 @@ const port = process.env.PORT || 3000;
 const server = http.createServer(app);
 const io = new Server(server); 
 
+// GẮN io lên app để routes lấy được
+app.set('io', io);
+
 initLocationSocket(io)
 app.use(cors());
 app.use(express.json());

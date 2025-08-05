@@ -1,10 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { publishTransfer, receiveLocation, initLocationSocket } = require('../mqttClient');
-const { io } = require('../app');
+const { publishTransfer, receiveLocation } = require('../mqttClient');
 const { User, Station, Room, TransferLog } = require('../Model/models');
-
-// initLocationSocket(io);
 
 // ===== LOGIN =====
 router.post('/login', async (req, res) => {
@@ -58,10 +55,24 @@ router.get('/rooms', async (req, res) => {
 router.post('/transfer', async (req, res) => {
   const { source, destination } = req.body;
   const log = new TransferLog({ source, destination });
-  publishTransfer(source, destination);
-  await log.save();
-  io.emit('new-log', log);
-  res.json({ message: 'Transfer logged', log });
+
+  try {
+    publishTransfer(source, destination);
+    await log.save();
+
+    const io = req.app.get('io');
+    if (!io) {
+      console.warn('[TRANSFER] Socket.IO instance is undefined; cannot emit new-log');
+    } else {
+      console.log('[TRANSFER] Emitting new-log with:', log);
+      io.emit('new-log', log);
+    }
+
+    res.json({ message: 'Transfer logged', log });
+  } catch (err) {
+    console.error('Error in /transfer:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 // ===== GET TRANSFER LOGS =====
@@ -80,4 +91,5 @@ router.get('/location', async (req, res) => {
     res.status(500).send('❌ Không thể nhận dữ liệu từ MQTT');
   }
 });
-module.exports =  router;
+
+module.exports = router;
