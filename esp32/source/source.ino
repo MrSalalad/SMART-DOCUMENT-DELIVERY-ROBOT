@@ -275,30 +275,30 @@ void callback(char* topic, uint8_t* payload, unsigned int length) {
     StaticJsonDocument<200> doc;
     deserializeJson(doc, jsonStr);
 
-    startingNode = doc["source"];
-    endingNode = doc["destination"];
+    // startingNode = doc["source"];
+    // endingNode = doc["destination"];
 
-    // const char* sourceName = doc["source"];
-    // const char* destinationName = doc["destination"];
-    // unlocked = false;
+    const char* sourceName = doc["source"];
+    const char* destinationName = doc["destination"];
+    unlocked = false;
 
-    // // Tìm ID tương ứng với tên node
-    // int startingNode = -1;
-    // int endingNode = -1;
+    // Tìm ID tương ứng với tên node
+    int startingNode = -1;
+    int endingNode = -1;
 
-    // for (const auto& node : allNodes) {
-    //     if (node.name == sourceName) {
-    //         startingNode = node.id;
-    //     }
-    //     if (node.name == destinationName) {
-    //         endingNode = node.id;
-    //     }
-    // }
+    for (const auto& node : allNodes) {
+        if (node.name == sourceName) {
+            startingNode = node.id;
+        }
+        if (node.name == destinationName) {
+            endingNode = node.id;
+        }
+    }
 
-    // if (startingNode == -1 || endingNode == -1) {
-    //     Serial.println("❌ Không tìm thấy node phù hợp với tên đã cung cấp.");
-    //     return;
-    // }
+    if (startingNode == -1 || endingNode == -1) {
+        Serial.println("❌ Không tìm thấy node phù hợp với tên đã cung cấp.");
+        return;
+    }
 
     Serial.print("Starting Node: ");
     Serial.println(startingNode);

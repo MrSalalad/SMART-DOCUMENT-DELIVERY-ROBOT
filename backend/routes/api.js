@@ -57,25 +57,25 @@ router.post('/transfer', async (req, res) => {
 
   const log = new TransferLog({ source, destination });
 
-  if (source == 'Room 1') {
-    source = '2';
-  } else if (source == 'Room 2') {
-    source = '5';
-  } else if (source == 'Room 3') {
-    source = '6';
-  } else if (source == 'Room 4') {
-    source = '9';
-  }
+  // if (source == 'Room 1') {
+  //   source = '2';
+  // } else if (source == 'Room 2') {
+  //   source = '5';
+  // } else if (source == 'Room 3') {
+  //   source = '6';
+  // } else if (source == 'Room 4') {
+  //   source = '9';
+  // }
 
-  if (destination == 'Room 1') {
-    destination = '2';
-  } else if (destination == 'Room 2') {
-    destination = '5';
-  } else if (destination == 'Room 3') {
-    destination = '6';
-  } else if (destination == 'Room 4') {
-    destination = '9';
-  }
+  // if (destination == 'Room 1') {
+  //   destination = '2';
+  // } else if (destination == 'Room 2') {
+  //   destination = '5';
+  // } else if (destination == 'Room 3') {
+  //   destination = '6';
+  // } else if (destination == 'Room 4') {
+  //   destination = '9';
+  // }
 
   try {
     publishTransfer(source, destination);
