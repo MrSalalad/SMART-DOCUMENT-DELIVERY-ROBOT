@@ -19,8 +19,7 @@ const io = new Server(server);
 
 // GẮN io lên app để routes lấy được
 app.set('io', io);
-
-initLocationSocket(io)
+initLocationSocket(io);
 app.use(cors());
 app.use(express.json());
 

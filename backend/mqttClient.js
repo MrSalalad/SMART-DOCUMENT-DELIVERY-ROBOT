@@ -6,7 +6,6 @@ const { Station, Room, TransferLog } = require('./Model/models');
 //const client = mqtt.connect('mqtt://192.168.25.103:1883');
 const client = mqtt.connect('mqtt://broker.hivemq.com');
 
-
 client.on('connect', () => {
   console.log('✅ MQTT connected');
 });
@@ -23,33 +22,22 @@ function publishTransfer(source, destination) {
 }
 
 function receiveLocation() {
-  return new Promise((resolve, reject) => {
-    // Subscribe nếu chưa có
-    client.subscribe('delivery/location', (err) => {
-      if (err) {
-        return reject('❌ Subscribe failed: ' + err);
+  client.on('message', (topic, message) => {
+  if (topic === 'delivery/location') {
+    try {
+      const data = JSON.parse(message.toString());
+      if (data.name) {
+        console.log('📝 Logged location to DB:', data.name);
+        const log = new TransferLog({ source: 'robot', destination: data.name });
+        log.save();
+        io.emit('location', data.name);
+        console.log('📡 Sent via socket:', data.name);
       }
-
-      // Chờ nhận 1 message đầu tiên
-      const onMessage = (receivedTopic, message) => {
-        if (receivedTopic === 'delivery/location') {
-          client.removeListener('message', onMessage); // chỉ nhận 1 lần
-          try {
-            const data = JSON.parse(message.toString());
-            if (data.currentLocation) {
-              const log = new TransferLog({ source: 'robot', destination: `station ${data.currentLocation}` });
-              log.save();
-            }
-            resolve(data); // trả kết quả
-          } catch (parseErr) {
-            reject('❌ Parse error: ' + parseErr);
-          }
-        }
-      };
-
-      client.on('message', onMessage);
-    });
-  });
+    } catch (err) {
+      console.error('❌ Parse error:', err);
+    }
+  }
+});
 }
 
 // function initLocationSocket(io) {
@@ -98,18 +86,8 @@ function initLocationSocket(io) {
       try {
         const data = JSON.parse(message.toString());
 
-        if (data.currentLocation) {
-          let locationLabel = `station ${data.currentLocation}`; // default fallback
-
-          // Try to resolve location name from DB
-          const station = await Station.findOne({ name: `Station ${data.currentLocation}` });
-          const room = await Room.findOne({ name: `${data.currentLocation}` });
-
-          if (station) {
-            locationLabel = `station: ${data.currentLocation}`;
-          } else if (room) {
-            locationLabel = `room: ${data.currentLocation}`;
-          }
+        if (data.name) {
+          let locationLabel = `${data.name}`; // default fallback
 
           // ✅ Save to TransferLog
           const log = new TransferLog({
@@ -119,11 +97,10 @@ function initLocationSocket(io) {
           });
 
           await log.save();
-          console.log('📝 Logged location to DB:', locationLabel);
 
           // ✅ Emit to frontend
           io.emit('new-log', log);
-          console.log('📡 Sent via socket:', locationLabel);
+          console.log('📡 Current Location:', locationLabel);
         }
       } catch (e) {
         console.error('❌ MQTT parse error:', e);

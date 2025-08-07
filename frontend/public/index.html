@@ -373,13 +373,13 @@
 
           rooms.forEach(room => {
             const option1 = document.createElement('option');
-            option1.value = option1.textContent = room;
+            option1.value = option1.textContent = 'Room ' + room;
             option1.style.color = '#000';
             option1.style.backgroundColor = '#fff';
             sourceSelect.appendChild(option1);
 
             const option2 = document.createElement('option');
-            option2.value = option2.textContent = room;
+            option2.value = option2.textContent = 'Room ' + room;
             option2.style.color = '#000';
             option2.style.backgroundColor = '#fff';
             destSelect.appendChild(option2);

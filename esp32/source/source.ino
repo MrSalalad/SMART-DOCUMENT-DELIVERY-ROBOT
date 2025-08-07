@@ -46,7 +46,7 @@ enum Direction { NORTH, EAST, SOUTH, WEST };
 Direction currentDirection;
 int currentLocation;
 int startingNode = 0;
-int endingNode = 3;
+int endingNode = 0;
 bool unlocked = false;
 bool authSuccess = false;
 
@@ -73,6 +73,7 @@ struct Edge {
 struct Node {
     int id;
     float x, y;
+    string name;
     string label;
     vector<Edge> neighbors;
 
@@ -160,6 +161,52 @@ void setup() {
     client.setServer(mqtt_server, 1883);
     reconnect();
 
+    // đây là chỗ thêm các trạm, phòng, và ngã rẽ, gồm có id và toạ độ (x,y))
+    allNodes.push_back({0, 0.0, 0.0, "Station 1", "STATION", {}}); // STATION 1: 0(0,0)
+    allNodes.push_back({1, 20.0, 0.0, "Intersection 1", "INTERSECTION", {}}); // INTERSECTION 1
+    allNodes.push_back({2, 40.0, 0.0, "Room 1", "ROOM", {}}); // ROOM 1
+    allNodes.push_back({3, 60.0, 0.0, "Intersection 2", "INTERSECTION", {}}); // INTERSECTION 2
+    allNodes.push_back({4, 80.0, 0.0, "Intersection 3", "INTERSECTION", {}}); // INTERSECTION 3
+    allNodes.push_back({5, 100.0, 0.0, "Room 2", "ROOM", {}}); // ROOM 2
+    allNodes.push_back({6, 20.0, 20.0, "Room 3", "ROOM", {}}); // ROOM 3
+    allNodes.push_back({7, 60.0, 20.0, "Intersection 4", "INTERSECTION", {}}); // INTERSECTION 4
+    allNodes.push_back({8, 80.0, 20.0, "Intersection 5", "INTERSECTION", {}}); // INTERSECTION 5
+    allNodes.push_back({9, 0.0, 40.0, "Room 4", "ROOM", {}}); // ROOM 4
+    allNodes.push_back({10, 20.0, 40.0, "Intersection 6", "INTERSECTION", {}}); // INTERSECTION 6
+    allNodes.push_back({11, 60.0, 40.0, "Station 2", "STATION", {}}); // STATION 2
+    allNodes.push_back({12, 80.0, 40.0, "Station 3", "STATION", {}}); // STATION 3
+
+    // Create connections (undirected graph)
+    // đây là chỗ thêm đường đi, lưu ý thêm 2 chiều
+    allNodes[0].neighbors.push_back({1, 20.0f}); // từ node 0 đến node 1 là 40 
+    allNodes[0].neighbors.push_back({9, 40.0f});
+    allNodes[1].neighbors.push_back({0, 20.0f});
+    allNodes[1].neighbors.push_back({2, 20.0f});
+    allNodes[1].neighbors.push_back({6, 20.0f});
+    allNodes[2].neighbors.push_back({1, 20.0f});
+    allNodes[2].neighbors.push_back({3, 20.0f});
+    allNodes[3].neighbors.push_back({2, 20.0f});
+    allNodes[3].neighbors.push_back({7, 20.0f}); // 100
+    allNodes[4].neighbors.push_back({5, 20.0f});
+    allNodes[4].neighbors.push_back({8, 20.0f}); //100
+    allNodes[5].neighbors.push_back({4, 20.0f});
+    allNodes[6].neighbors.push_back({1, 20.0f});
+    allNodes[6].neighbors.push_back({7, 40.0f});
+    allNodes[6].neighbors.push_back({10, 20.0f});
+    allNodes[7].neighbors.push_back({6, 40.0f});
+    allNodes[7].neighbors.push_back({8, 20.0f});
+    allNodes[7].neighbors.push_back({3, 20.0f});
+    allNodes[7].neighbors.push_back({11, 20.0f});
+    allNodes[8].neighbors.push_back({7, 20.0f});
+    allNodes[8].neighbors.push_back({4, 20.0f}); // 100
+    allNodes[9].neighbors.push_back({0, 20.0f});
+    allNodes[9].neighbors.push_back({10, 20.0f});
+    allNodes[10].neighbors.push_back({9, 20.0f});
+    allNodes[10].neighbors.push_back({6, 20.0f});
+    allNodes[11].neighbors.push_back({7, 20.0f});
+    allNodes[11].neighbors.push_back({12, 20.0f});
+    allNodes[12].neighbors.push_back({11, 20.0f});
+
     // Initialize Voice Recognition
     ei_printf("Inferencing settings:\n");
     ei_printf("\tInterval: ");
@@ -173,30 +220,6 @@ void setup() {
         ei_printf("ERR: Could not allocate audio buffer\n");
         while(1);
     }
-
-    // Initialize Navigation Map
-    allNodes.push_back({0, 0.0, 0.0, "STATION", {}});
-    allNodes.push_back({1, 80.0, 0.0, "ROOM", {}});
-    allNodes.push_back({2, 0.0, 50.0, "INTERSECTION", {}});
-    allNodes.push_back({3, 80.0, 50.0, "ROOM", {}});
-    allNodes.push_back({4, 130.0, 50.0, "STATION", {}});
-    allNodes.push_back({5, 130.0, 0.0, "INTERSECTION", {}});
-
-    // Create connections (undirected graph)
-    allNodes[0].neighbors.push_back({1, 80.0f});
-    allNodes[0].neighbors.push_back({2, 50.0f});
-    allNodes[1].neighbors.push_back({0, 80.0f});
-    allNodes[1].neighbors.push_back({3, 50.0f});
-    allNodes[1].neighbors.push_back({5, 50.0f});
-    allNodes[2].neighbors.push_back({0, 50.0f});
-    allNodes[2].neighbors.push_back({3, 80.0f});
-    allNodes[3].neighbors.push_back({1, 50.0f});
-    allNodes[3].neighbors.push_back({2, 80.0f});
-    allNodes[3].neighbors.push_back({4, 50.0f});
-    allNodes[4].neighbors.push_back({3, 50.0f});
-    allNodes[4].neighbors.push_back({5, 50.0f});
-    allNodes[5].neighbors.push_back({1, 50.0f});
-    allNodes[5].neighbors.push_back({4, 50.0f});
 
     // Initial robot state
     currentDirection = EAST;
@@ -217,15 +240,10 @@ void loop() {
 // ====== Voice Recognition Functions ======
 bool runVoiceInferenceCycle() {
     // Start recording
-    digitalWrite(LED_RECORD, HIGH);
     bool m = microphone_inference_record();
-    digitalWrite(LED_RECORD, LOW);
 
     if (!m) {
         ei_printf("ERR: Failed to record audio...\n");
-        digitalWrite(LED_ERROR, HIGH);
-        delay(1000);
-        digitalWrite(LED_ERROR, LOW);
         return false;
     }
 
@@ -236,29 +254,14 @@ bool runVoiceInferenceCycle() {
 
     EI_IMPULSE_ERROR r = run_classifier(&signal, &result, debug_nn);
     if (r != EI_IMPULSE_OK) {
-        digitalWrite(LED_ERROR, HIGH);
-        delay(1000);
-        digitalWrite(LED_ERROR, LOW);
         return false;
     }
 
     // Check for correct command (class index 1)
     if (result.classification[1].value > result.classification[0].value && 
         result.classification[1].value > result.classification[2].value) {
-        
-        // Visual success indication
-        for (int i = 0; i < 3; i++) {
-            digitalWrite(LED_SUCCESS, HIGH);
-            delay(300);
-            digitalWrite(LED_SUCCESS, LOW);
-            delay(300);
-        }
-
         return true;
     } else {
-        digitalWrite(LED_ERROR, HIGH);
-        delay(1000);
-        digitalWrite(LED_ERROR, LOW);
         return false;
     }
 }
@@ -274,6 +277,28 @@ void callback(char* topic, uint8_t* payload, unsigned int length) {
 
     startingNode = doc["source"];
     endingNode = doc["destination"];
+
+    // const char* sourceName = doc["source"];
+    // const char* destinationName = doc["destination"];
+    // unlocked = false;
+
+    // // Tìm ID tương ứng với tên node
+    // int startingNode = -1;
+    // int endingNode = -1;
+
+    // for (const auto& node : allNodes) {
+    //     if (node.name == sourceName) {
+    //         startingNode = node.id;
+    //     }
+    //     if (node.name == destinationName) {
+    //         endingNode = node.id;
+    //     }
+    // }
+
+    // if (startingNode == -1 || endingNode == -1) {
+    //     Serial.println("❌ Không tìm thấy node phù hợp với tên đã cung cấp.");
+    //     return;
+    // }
 
     Serial.print("Starting Node: ");
     Serial.println(startingNode);
@@ -301,27 +326,54 @@ void callback(char* topic, uint8_t* payload, unsigned int length) {
 
         while (attempts < maxAttempts) {
             attempts++;
-            Serial.print("Attempt voice auth #"); Serial.println(attempts);
+            Serial.print("Attempt voice auth #"); 
+            Serial.println(attempts);
+
+            // Bắt đầu ghi âm, bật đèn ghi âm
+            digitalWrite(LED_RECORD, HIGH);
+
             if (runVoiceInferenceCycle()) {
+                digitalWrite(LED_RECORD, LOW);
                 authSuccess = true;
                 break;
             } else {
                 Serial.println("Xác thực thất bại, thử lại...");
-                delay(500); // nghỉ giữa lần thử
+
+                // Nhấp nháy đèn lỗi 3 lần
+                for (int i = 0; i < 3; i++) {
+                    digitalWrite(LED_ERROR, HIGH);
+                    delay(500);
+                    digitalWrite(LED_ERROR, LOW);
+                    delay(500);
+                }
+
+                delay(3000); // nghỉ giữa các lần thử
             }
+
+            // Tắt đèn ghi âm sau mỗi lần thử
+            digitalWrite(LED_RECORD, LOW);
         }
     
         if (authSuccess) {
             unlocked = true;
             Serial.println("✅ Auth thành công, mở khóa");
-            digitalWrite(LED_SUCCESS, HIGH);
+
+            // Nhấp nháy đèn thành công 3 lần
+            for (int i = 0; i < 3; i++) {
+                digitalWrite(LED_SUCCESS, HIGH);
+                delay(500);
+                digitalWrite(LED_SUCCESS, LOW);
+                delay(500);
+            }
+
+            // Mở khóa servo
             myServo.write(90); // Unlock
-            delay(5000);
-            myServo.write(0); // Quay về vị trí cũ
+            delay(5000); // Giữ servo mở khóa trong 5 giây
+            myServo.write(0); // Quay lại vị trí cũ
         }
     }
 
-    // Return to nearest station
+    // Thực hiện tìm đường về
     int nearestStationId = findNearestStation(currentLocation, allNodes);
     if (nearestStationId != -1) {
         vector<int> pathToStation = aStar(currentLocation, nearestStationId, allNodes);
@@ -371,7 +423,7 @@ void turnRight90() {
   Serial.println("Turn right");
   digitalWrite(motor1pin1, HIGH);
   digitalWrite(motor2pin2, HIGH);
-  delay(409); // thời gian để rẽ tới góc 90 độ
+  delay(809); // thời gian để rẽ tới góc 90 độ
   digitalWrite(motor1pin1, LOW);
   digitalWrite(motor2pin2, LOW);
 }
@@ -454,15 +506,20 @@ void followPath(vector<int> path) {
     moveDistance(distance);
     delay(500); // nghỉ chút giữa các bước đi
 
-    // currentLocation = path[i];
-    char payload[50];  // Đủ lớn cho chuỗi JSON
-    snprintf(payload, sizeof(payload), "{\"currentLocation\":\"%d\"}", path[i]);
+    const char* name = allNodes[path[i]].name.c_str();
+    char payload[100];  // đủ lớn cho tên dài
+    snprintf(payload, sizeof(payload), "{\"name\":\"%s\"}", name);
     client.publish("delivery/location", payload);
   }
   currentLocation = path.back();
-  char payload[50];  // Đủ lớn cho chuỗi JSON
-  snprintf(payload, sizeof(payload), "{\"currentLocation\":\"%d\"}", currentLocation);
+  Node& finalNode = allNodes[currentLocation];
+
+  char payload[100]; // Tăng buffer đủ chứa chuỗi JSON dài hơn
+  snprintf(payload, sizeof(payload), "{\"name\":\"%s\"}", finalNode.name.c_str());
   client.publish("delivery/location", payload);
+
+  Serial.print("Đã gửi vị trí cuối cùng (name): ");
+  Serial.println(finalNode.name.c_str());
 }
 
 // ====== A* Algorithm Implementation ======
